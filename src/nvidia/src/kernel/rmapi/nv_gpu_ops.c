@@ -25,6 +25,7 @@
 
 
 #include <class/cl0002.h>
+#include <gpu/bus/kern_bus.h>
 #include <class/cl0005.h>
 #include <class/cl003e.h> // NV01_MEMORY_SYSTEM
 #include <class/cl0040.h> // NV01_MEMORY_LOCAL_USER
@@ -3973,6 +3974,12 @@ nvGpuOpsBuildExternalAllocPtes
     {
         physAddr = physicalAddresses[iter];
 
+        if (aperture == GMMU_APERTURE_PEER)
+        {
+             KernelBus *pKernelBus = GPU_GET_KERNEL_BUS(pMappingGpu);
+             physAddr += pKernelBus->pciBars[1];
+        }
+
         gmmuFieldSetAddress(gmmuFmtPtePhysAddrFld(pPteFmt, aperture),
                             physAddr,
                             pte.v8);
@@ -4202,6 +4209,11 @@ nvGpuOpsBuildExternalAllocPhysAddrs
 
     for (iter = 0; iter < physAddrCount; iter++)
     {
+        if (aperture == GMMU_APERTURE_PEER)
+        {
+             KernelBus *pKernelBus = GPU_GET_KERNEL_BUS(pMappingGpu);
+             physicalAddresses[iter] += pKernelBus->pciBars[1];
+        }
         pGpuExternalPhysAddrInfo->physAddrBuffer[iter] = physicalAddresses[iter];
     }
 
