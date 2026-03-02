@@ -1,0 +1,16 @@
+FROM ubuntu:24.04
+
+ARG KERNEL_VERSION=6.8.0-101-generic
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    linux-headers-${KERNEL_VERSION} \
+    linux-modules-${KERNEL_VERSION} \
+    kmod \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /build
+COPY . .
+
+RUN make modules KERNEL_UNAME=${KERNEL_VERSION} -j$(nproc)
+RUN mkdir -p /out && find kernel-open -name '*.ko' -exec cp {} /out/ \;
