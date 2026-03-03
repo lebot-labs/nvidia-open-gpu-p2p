@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM ubuntu:24.04 AS builder
 
 ARG KERNEL_VERSION=6.8.0-101-generic
 
@@ -13,4 +13,6 @@ WORKDIR /build
 COPY . .
 
 RUN make modules KERNEL_UNAME=${KERNEL_VERSION} -j$(nproc)
-RUN mkdir -p /out && find kernel-open -name '*.ko' -exec cp {} /out/ \;
+
+FROM scratch
+COPY --from=builder /build/kernel-open/*.ko /
