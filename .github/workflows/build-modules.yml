@@ -23,7 +23,10 @@ jobs:
             --build-arg KERNEL_VERSION=${{ inputs.kernel_version || '6.8.0-101-generic' }} \
             --output type=local,dest=./out .
 
+      - name: Set artifact name
+        run: echo "ARTIFACT_NAME=nvidia-ko-${GITHUB_REF_NAME//\//-}" >> "$GITHUB_ENV"
+
       - uses: actions/upload-artifact@v4
         with:
-          name: nvidia-ko-${{ github.ref_name }}
+          name: ${{ env.ARTIFACT_NAME }}
           path: out/*.ko
